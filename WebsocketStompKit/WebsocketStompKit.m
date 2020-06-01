@@ -590,8 +590,13 @@ CFAbsoluteTime serverActivity;
 // This is where all the goodness should arrive
 - (void)websocket:(JFRWebSocket*)socket didReceiveMessage:(NSString *)string {
     serverActivity = CFAbsoluteTimeGetCurrent();
-    STOMPFrame *frame = [STOMPFrame STOMPFrameFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
-    [self receivedFrame:frame];
+    if ([string isEqualToString:@"\n"]) {
+         
+    }else{
+        STOMPFrame *frame = [STOMPFrame STOMPFrameFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
+        [self receivedFrame:frame];
+    }
+    
 }
 
 - (void)websocketDidDisconnect:(JFRWebSocket*)socket error:(NSError*)error {
