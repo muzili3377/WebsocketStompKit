@@ -127,6 +127,9 @@
     while ([contents count] > 0 && [contents[0] isEqual:@""]) {
         [contents removeObjectAtIndex:0];
     }
+    if (!contents.count) {
+         return nil;
+    }
     NSString *command = [[contents objectAtIndex:0] copy];
     NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
     NSMutableString *body = [[NSMutableString alloc] init];
