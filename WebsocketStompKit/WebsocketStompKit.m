@@ -123,39 +123,41 @@
     NSData *strData = [data subdataWithRange:NSMakeRange(0, [data length])];
     NSString *msg = [[NSString alloc] initWithData:strData encoding:NSUTF8StringEncoding];
     LogDebug(@"<<< %@", msg);
-    NSMutableArray *contents = (NSMutableArray *)[[msg componentsSeparatedByString:kLineFeed] mutableCopy];
-    while ([contents count] > 0 && [contents[0] isEqual:@""]) {
-        [contents removeObjectAtIndex:0];
-    }
-    if (!contents.count) {
+    if ([msg isEqualToString:@"\n"]) {
          return nil;
-    }
-    NSString *command = [[contents objectAtIndex:0] copy];
-    NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
-    NSMutableString *body = [[NSMutableString alloc] init];
-    BOOL hasHeaders = NO;
-    [contents removeObjectAtIndex:0];
-    for(NSString *line in contents) {
-        if(hasHeaders) {
-            for (int i=0; i < [line length]; i++) {
-                unichar c = [line characterAtIndex:i];
-                if (c != '\x00') {
-                    [body appendString:[NSString stringWithFormat:@"%c", c]];
+    }else{
+        NSMutableArray *contents = (NSMutableArray *)[[msg componentsSeparatedByString:kLineFeed] mutableCopy];
+        while ([contents count] > 0 && [contents[0] isEqual:@""]) {
+            [contents removeObjectAtIndex:0];
+        }
+        NSString *command = [[contents objectAtIndex:0] copy];
+        NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
+        NSMutableString *body = [[NSMutableString alloc] init];
+        BOOL hasHeaders = NO;
+        [contents removeObjectAtIndex:0];
+        for(NSString *line in contents) {
+            if(hasHeaders) {
+                for (int i=0; i < [line length]; i++) {
+                    unichar c = [line characterAtIndex:i];
+                    if (c != '\x00') {
+                        [body appendString:[NSString stringWithFormat:@"%c", c]];
+                    }
+                }
+            } else {
+                if ([line isEqual:@""]) {
+                    hasHeaders = YES;
+                } else {
+                    NSMutableArray *parts = [NSMutableArray arrayWithArray:[line componentsSeparatedByString:kHeaderSeparator]];
+                    // key ist the first part
+                    NSString *key = parts[0];
+                    [parts removeObjectAtIndex:0];
+                    headers[key] = [parts componentsJoinedByString:kHeaderSeparator];
                 }
             }
-        } else {
-            if ([line isEqual:@""]) {
-                hasHeaders = YES;
-            } else {
-                NSMutableArray *parts = [NSMutableArray arrayWithArray:[line componentsSeparatedByString:kHeaderSeparator]];
-                // key ist the first part
-                NSString *key = parts[0];
-                [parts removeObjectAtIndex:0];
-                headers[key] = [parts componentsJoinedByString:kHeaderSeparator];
-            }
         }
+        return [[STOMPFrame alloc] initWithCommand:command headers:headers body:body];
     }
-    return [[STOMPFrame alloc] initWithCommand:command headers:headers body:body];
+    
 }
 
 - (NSString *)description {
