@@ -543,10 +543,16 @@ CFAbsoluteTime serverActivity;
             LogDebug(@"Unhandled ERROR frame: %@", frame);
         }
     } else {
-        NSError *error = [[NSError alloc] initWithDomain:@"StompKit"
-                                                    code:2
-                                                userInfo:@{@"message": [NSString stringWithFormat:@"Unknown frame %@", frame.command],
-                                                           @"frame": frame}];
+        NSError *error = nil;
+        if (!frame) {
+             
+        }else{
+            error = [[NSError alloc] initWithDomain:@"StompKit"
+                code:2
+            userInfo:@{@"message": [NSString stringWithFormat:@"Unknown frame %@", frame.command],
+                       @"frame": frame}];
+        }
+        
         if (self.errorHandler) {
             self.errorHandler(error);
         }
