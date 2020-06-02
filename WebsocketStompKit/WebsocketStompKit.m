@@ -127,7 +127,7 @@
     while ([contents count] > 0 && [contents[0] isEqual:@""]) {
         [contents removeObjectAtIndex:0];
     }
-    if (contents.count !=0) {
+    if (contents.count>0) {
          NSString *command = [[contents objectAtIndex:0] copy];
          NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
          NSMutableString *body = [[NSMutableString alloc] init];
@@ -589,12 +589,8 @@ CFAbsoluteTime serverActivity;
 // This is where all the goodness should arrive
 - (void)websocket:(JFRWebSocket*)socket didReceiveMessage:(NSString *)string {
     serverActivity = CFAbsoluteTimeGetCurrent();
-    if ([string isEqualToString:@"\n"]) {
-         
-    }else{
-        STOMPFrame *frame = [STOMPFrame STOMPFrameFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
-        [self receivedFrame:frame];
-    }
+    STOMPFrame *frame = [STOMPFrame STOMPFrameFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
+    [self receivedFrame:frame];
     
 }
 
